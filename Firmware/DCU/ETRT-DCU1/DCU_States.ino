@@ -68,14 +68,12 @@ dcuState_t runStartup(){
     //reset
     device.userButtonChanged = false;
   #endif
-  delay(500);
-  if(DEBUG) USBS.println("DCU State: USB ONLNE");
-  //printDeviceState(bufferUSB);
+  delay(1500);
+  if(DEBUGGING) USBS.println("DCU State: USB ONLNE --------------------------");
   return DCU_STARTING_SDHC;
 }
 
 dcuState_t startSDHC(){
-  
   if(device.printStartupState) printOnce("DCU State: Starting SDHC");
   //delay(100); //removing this caused one device to crash ...?
   setupSDHC();

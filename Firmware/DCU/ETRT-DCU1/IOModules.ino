@@ -36,7 +36,7 @@ void updateIO(){
 
 void updateInputs(){
   if(device.sensorType == 1){
-      device.inputs[0] = Sensor.getRange();
+    device.inputs[0] = Sensor.getRange();
     device.inputs[1] = Sensor.getDelta();
     device.inputs[2] = Sensor.getTOFRange();
     device.inputs[3] = Sensor.getTOFDelta();

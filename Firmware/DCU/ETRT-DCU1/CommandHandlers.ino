@@ -33,7 +33,7 @@ const commandList_t DCUCommands[] = {
   {"disable UDP",       disableUDP,         "Starts the UDP service"},
   {"startlog",          startLogging,       "Starts logging data"}, //start Logging Data
   {"stoplog",           stopLogging,        "Stops logging data"}, //stop Logging Data
-  {"setlog ",           setloglist,         "Configure which types of data are to be logged and where to send it (SD, USB, UDP, Bluetooth). Examples: setlog quaternion true  setlog USB true"}, //configure which data is to be logged
+  {"setlog",           setloglist,         "Configure which types of data are to be logged and where to send it (SD, USB, UDP, Bluetooth). Examples: setlog quaternion true  setlog USB true"}, //configure which data is to be logged
   {"get log header",    getLogHeader,       "Gets the header for the log file with names for each column of data"}, //return the log header
   {"SD",                sdFileHandler,      "Open SD explorer submenu"},
   //{"dir",               printSDDirectory,   "Print the filenames of files on the SD Card"}, //print the SD directory
@@ -43,20 +43,21 @@ const commandList_t DCUCommands[] = {
   {"set gyro bias",    setBias,            "Set the Gyro bias values with three comma seperated integers. Syntax:set gyro bias [x],[y],[z]"},
   {"set accel bias",   setBias,            "Set the Accelerometer bias values with three comma seperated integers. Syntax:set gyro bias [x],[y],[z]"},
   {"set mag bias",     setBias,            "Set the magnetometer bias values with three comma seperated integers. Syntax:set gyro bias [x],[y],[z]"},
-  {"ESP Boot",          espBootloaderMode,  "Set the ESP32 to bootloader mode"}, //go into bootloader and disable UART
-  {"ESP RESET",         espReset,           "Reset the ESP32"}, //restart ESP32 and UART
-  {"ESP Status:",       espStatusMessage,   "An ESP32 WiFi module Status message"}, //Status message from ESP
-  {"ESPGet:",           espSendClientData,  "Marks HTML data sent to the WiFI module for it to sent to a client"},  //get an HTTP page
-  {"ESPTelnet:",        espSendTelnetData,  "Marks data as coming from a Telnet client"},  //
+  {"ESP Boot",          espBootloaderMode,  "-Set the ESP32 to bootloader mode"}, //go into bootloader and disable UART
+  {"ESP RESET",         espReset,           "-Reset the ESP32"}, //restart ESP32 and UART
+  {"ESP Status:",       espStatusMessage,   "-An ESP32 WiFi module Status message"}, //Status message from ESP
+  {"ESPGet:",           espSendClientData,  "-Marks HTML data sent to the WiFI module for it to sent to a client"},  //get an HTTP page
+  {"ESPTelnet:",        espSendTelnetData,  "-Marks data as coming from a Telnet client"},  //
   {"ESP:",              espSendCommand,     "Route the command to the ESP32 WiFi Module"}, //route a command to the ESP module  
   {"testSD",            testSD,             "Test the SD by opening, writing and closing a file"},
   {"button action",    buttonActionSet,    "Enable or disable various button actions"},
-  {"DEBUG:",            debugMessage,       "Debug message"},
-  {"ack",               ack,                "Acknowledge"},
-  {"nack",              nack,               "NOT Acknowledge"},
-  {"toggle print",      togglePrint,        "Toggle Printing (DEBUGGING)"},
+  {"print",               printSomethingHandler,    "Print a piece of data"},
+  {"-DEBUG:",            debugMessage,       "-Debug message"},
+  {"ack",               ack,                "-Acknowledge"},
+  {"nack",              nack,               "-NOT Acknowledge"},
+  {"debug",      setDebugPrinting,        "set debugging print options. Sub options are sd or boot. Use 'on', 'off' or none to toggle. EG: 'debug on' or 'debug sd on'"},
   {"?",                 query,              "Query"},
-  {"ERR:",              commError,          "comm Error"}
+  {"ERR:",              commError,          "-comm Error"}
 };
 
 const uint16_t numOfDCUCmds = sizeof(DCUCommands);
@@ -79,6 +80,11 @@ int getCommandEndIndex(Commander &Cmdr){
 bool getTrueOrFalse(String dataString){
   if(dataString.indexOf("true") > -1) return true;
   return false;
+}
+bool printSomethingHandler(Commander &Cmdr){
+  if(Cmdr.getPayloadString() == "sonar"){
+    printSonar(Cmdr);
+  }
 }
 
 bool commError(Commander &Cmdr){
@@ -121,7 +127,7 @@ bool buttonActionSet( Commander &Cmdr){
   //String subStr = Cmdr.bufferString.substring(startOf +1);
   bool isTrue = Cmdr.containsTrue(); //getTrueOrFalse(subStr);
 
-  if(Cmdr.bufferString.indexOf("enable haptics") != -1)
+  //if(Cmdr.bufferString.indexOf("enable haptics") != -1)
   //parse substr
   if(Cmdr.bufferString.indexOf("enable haptics") != -1){
     device.buttonEnableHaptics = isTrue;
@@ -497,10 +503,27 @@ bool help(Commander &Cmdr){
   return 0;
 }*/
 
-bool togglePrint(Commander &Cmdr){
+bool setDebugPrinting(Commander &Cmdr){
   //ERRORS.println("Serial handler 2");
-  Cmdr.println("DCU Status: Toggled Printing");
-  printData = !printData;
+  Cmdr.println("DCU Status: Setting debug printing");
+  if(Cmdr.bufferString.indexOf("boot") > -1){
+    if(Cmdr.containsOn()) DEBUGGING_BOOT = true;
+    else if(Cmdr.containsOff()) DEBUGGING_BOOT = false;
+    else DEBUGGING_BOOT = !DEBUGGING_BOOT;
+    DEBUGGING_BOOT ? Cmdr.println("Debug boot ON") : Cmdr.println("Debug boot OFF");
+    return 0;
+  }
+  if(Cmdr.bufferString.indexOf("sd") > -1){
+    if(Cmdr.containsOn()) DEBUGGING_SD = true;
+    else if(Cmdr.containsOff()) DEBUGGING_SD = false;
+    else DEBUGGING_SD = !DEBUGGING_SD;
+    DEBUGGING_SD ? Cmdr.println("Debug sd ON") : Cmdr.println("Debug sd OFF");
+    return 0;
+  }
+  if(Cmdr.containsOn()) DEBUGGING = true;
+  else if(Cmdr.containsOff()) DEBUGGING = false;
+  else DEBUGGING = !DEBUGGING;
+  DEBUGGING ? Cmdr.println("Debug ON") : Cmdr.println("Debug OFF");
   return 0;
 }
 

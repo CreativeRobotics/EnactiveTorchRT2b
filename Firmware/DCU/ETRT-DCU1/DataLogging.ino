@@ -189,8 +189,10 @@ void createLogLine(){
       addToBuffer(String(device.mag[n], settings.dataPrecision));
     }
   }
-  addCommaToBuffer();
-  addToBuffer(String(device.cHeading, settings.dataPrecision));
+  if(device.logHeading){
+    addCommaToBuffer();
+    addToBuffer(String(device.cHeading, settings.dataPrecision));
+  }
   //Now the inputs and outputs
   if(device.logInputs){
     for(int n = 0; n < INPUTS; n++){

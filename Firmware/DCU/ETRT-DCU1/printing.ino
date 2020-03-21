@@ -258,3 +258,15 @@ void printDeviceState(){
   
   DEBUG.println();
 }
+
+
+void printSonar(Commander &Cmdr){
+  Cmdr.print("Sonar: ");
+  if(device.sonarMode == SONAR_PULSE_MODE){
+    Cmdr.println(getSonarRange());
+  }else{    //SONAR_SERIAL_MODE;
+    Cmdr.print(Sonar.getRange());
+    Cmdr.print(" Updates: ");
+    Cmdr.println(Sonar.getUpdates());
+  }
+}

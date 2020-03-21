@@ -1,11 +1,11 @@
 #include "src\Utilities\Bounce2\Bounce2.h"
 #include <SamRTC.h> //In CR core lib
 #include <SPI.h>  //In CR core lib
-#include "src\Drivers\Adafruit_NeoPixel.h"
+#include "src/Drivers/Adafruit_NeoPixel.h"
 #include "wiring_private.h"
 
-#include "src\Commander\Commander.h"
-#include "src\Commander\prefabs\SDCards\PrefabFileNavigator.h"
+#include "src/Commander/Commander.h"
+#include "src/Commander/prefabs/SDCards/PrefabFileNavigator.h"
 
 //Real Time Clock
 //#include <RV8523.h>
@@ -16,8 +16,8 @@
 //#include <SdFatConfig.h>
 #include <sdios.h>
 //#include <SysCall.h>
-#include "src\Drivers\IMU\MPU9250_RegisterMap.h"
-#include "src\Drivers\IMU\SparkFunMPU9250-DMP.h"
+#include "src/Drivers/IMU/MPU9250_RegisterMap.h"
+#include "src/Drivers/IMU/SparkFunMPU9250-DMP.h"
 MPU9250_DMP imu;
 inv_error_t initResult;
 
@@ -26,7 +26,9 @@ inv_error_t initResult;
 //Serial port for printing error messages
 #define ERRORS Serial
 #define DEBUG Serial
-#define DEBUGGING false
+bool DEBUGGING = false;
+bool DEBUGGING_BOOT = false;
+bool DEBUGGING_SD  = false;
 //#define WAIT_FOR_USB
 //#define WAIT_FOR_BUTTON
 #define USBS Serial
@@ -144,6 +146,9 @@ typedef struct dcuSettings_t{
 #define DCU_MZ device.mag[2]
 #define INPUTS  6
 #define OUTPUTS 6
+
+#define SONAR_SERIAL_MODE 1
+#define SONAR_PULSE_MODE 0
 typedef struct dcuData_t{
 	float batteryVoltage;
   bool logQ = false;
@@ -217,6 +222,7 @@ typedef struct dcuData_t{
   bool userButtonChanged = false;
 
   uint8_t sensorType = 1;  //default to LIDAR
+  bool sonarMode = SONAR_PULSE_MODE;//SONAR_SERIAL_MODE - this mode won't work without a hardware change, the serial on sonar modules is inverted.
   String sensorName = "LIDAR";
   //Button Actions:
   bool buttonEnableHaptics = true; //map sensors to haptics when button pressed
@@ -236,47 +242,12 @@ typedef struct dcuData_t{
   unsigned long sdLogEndDelay = 500; //A delay before ending the SD log - for when the user button is used
   unsigned long sdLogEndTime = 0; //for storing the time when the end command was triggered
 } dcuData_t;
-
+/*
 typedef struct wifiSettings_t{
 	String ssid = "";
 	String pswd = "";
-} wifiSettings_t;
-/*
-#define SBUFFER 1024
-typedef enum bufferState_t{
-  WAITING_FOR_START = 0,
-  BUFFERING_PACKET,
-  PACKET_RECEIVED
-} bufferState_t;
+} wifiSettings_t;*/
 
-typedef enum serialPortMode_t{
-  NO_OPERATION = 0,
-  COMMAND_MODE,
-  PASSTHROUGH,
-  PASSTHROUGH_COMMAND,
-  FILEREADER_TOSERIAL,
-  FILEREADER_COMMAND
-} serialPortMode_t;
-
-typedef struct serialBuffer_t{
-  Stream *port = &Serial; //initialised to something sensible . . .
-  String bufferString = "";
-  unsigned long bytesWritten = 0;
-  bool newData = false;
-  bool newLine = false;
-  bool bufferFull = false;
-  serialPortMode_t mode = COMMAND_MODE;
-  Stream *altPort = &Serial1; //for pass through - initialised to something sensible
-  uint8_t commandVal = 0;
-  bufferState_t parseState = WAITING_FOR_START;
-  const uint8_t END_OF_PACKET = '\n';
-  //const uint8_t PACKET_START = '#';
-  File fileReader;
-  bool endOfFile = false;
-  String pendingCommandString = "";
-  bool isCommandPending = false;
-} serialBuffer_t;
-*/
 typedef struct dataLog_t{
   String buffer[2] = {"",""};
   uint8_t i = 0;
@@ -299,7 +270,7 @@ float range = 0.0;
 //---------------------------------
 dcuSettings_t settings;
 dcuData_t device;
-wifiSettings_t wifiSettings;
+//wifiSettings_t wifiSettings;
 //Serial command buffers
 //serialBuffer_t bufferUSB, bufferWireless;
 //serialBuffer_t bufferSD;

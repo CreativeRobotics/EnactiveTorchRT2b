@@ -55,7 +55,7 @@ void TOFLidarSensor::update(){
 		TOFRange = (float)distance; //distance collected from the TOF ranger is in cm and an int - convert to float
 		TOFDelta = (TOFRange-lastTOFRange)/deltaT;
 		merge();
-		lastUpdate = millis();
+		lastUpdate = micros();
 	}
 }
 //-----------------------------------------------------

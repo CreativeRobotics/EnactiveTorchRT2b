@@ -48,6 +48,8 @@ void setupSDHC(){
 
 void startSD(){
   device.cardPresent = cardInserted();
+  if(DEBUGGING_BOOT && !device.cardPresent) DEBUG.println("Card not detected");
+  else if(DEBUGGING_BOOT) DEBUG.println("Card detected");
   //if(DEBUGGING && device.cardPresent) DEBUG.println("Card detected");
   //if(DEBUGGING && !device.cardPresent) DEBUG.println("Card not detected");
   //if(DEBUGGING) DEBUG.println("Attempting to initialise card");
@@ -72,11 +74,14 @@ void tryInitSDCard(){
 }
 
 bool checkForSettings(){
+  if(!device.cardPresent) DEBUG.println("DCU State: Can't find settings.txt - no SD card");
   if (SD.exists("settings.txt")) {
-    DEBUG.println("DEBUG: settings file found.");
+    if(device.printStartupState) printOnce("DCU State: settings file found.");
+    //DEBUG.println("DEBUG: settings file found.");
     device.cardSettingsFile = true;
   } else {
-    DEBUG.println("DEBUG: settings file not found.");
+    if(device.printStartupState) printOnce("DCU State: settings file not found.");
+    //DEBUG.println("DEBUG: settings file not found.");
     device.cardSettingsFile = false;
   }
   return device.cardSettingsFile;

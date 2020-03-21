@@ -4,8 +4,8 @@
 
 #include <Arduino.h>
 #include <string.h>
-//#include <SdFat.h>
-//#include <sdios.h>
+#include <SdFat.h>
+#include <sdios.h>
 
 extern bool SDOK;
 extern SdFat SD;

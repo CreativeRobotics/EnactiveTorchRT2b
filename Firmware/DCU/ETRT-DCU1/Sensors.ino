@@ -12,11 +12,18 @@ void updateTOFSensor(){
 //#define PWM_PIN  PB05//ADC2
 void initSonarSensor(){
   if(DEBUGGING) DEBUG.println("init Sonar ...");
+  if(device.sonarMode == SONAR_SERIAL_MODE){
+    //setup the sonar object
+    Sonar.begin();
+  }
   //setupSonar(); //PULSE IN on  A2
 }
 
 void updateSonar(){
-  device.inputs[2] = getSonarRange();
+  if(device.sonarMode == SONAR_SERIAL_MODE){
+    //update the sonar object
+    Sonar.update();
+  }  else device.inputs[2] = getSonarRange();
 }
 
 
@@ -34,7 +41,7 @@ float getSonarRange(){
   //147 microseconds per inch
   range = (float)pulseLength;
   range /=147.0;
-  range *=25.4;
+  range *=2.54;
   return range;
 }
 void sonarPulsePin_isr(){
