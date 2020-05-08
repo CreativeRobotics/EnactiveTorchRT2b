@@ -47,9 +47,9 @@ void setup() {
   WIRELESS.begin(115200);
   //while(!USBS){;}
   
-  if(DEBUGGING_BOOT) Serial.println("State: Starting up");
+  if(DBG.BOOT) Serial.println("State: Starting up");
   device.deviceState = runStartup();
-  if(DEBUGGING_BOOT) {
+  if(DBG.BOOT) {
     Serial.println("State: Startup state ended - curr state:");
     printDeviceState(cmdDCU);
   }
@@ -81,7 +81,7 @@ void loop() {
    */
   switch(device.deviceState){
     case DCU_SPEEPING:
-      if(DEBUGGING_BOOT) Serial.println("State: Sleeping");
+      if(DBG.BOOT) Serial.println("State: Sleeping");
       //do nothing
       //If you wake up you will be in this state
       
@@ -93,25 +93,25 @@ void loop() {
       break;
     case DCU_GOINGTOSLEEP:
       //Set clock to sleep mode
-      if(DEBUGGING_BOOT) Serial.println("State: Going to sleep");
+      if(DBG.BOOT) Serial.println("State: Going to sleep");
       device.deviceState = DCU_SPEEPING;
       Clock.standbyMode();
       break;
     case DCU_STARTING_SDHC:
       //setLEDs(redLED);
-      if(DEBUGGING_BOOT) Serial.println("State: Starting SDHC");
+      if(DBG.BOOT) Serial.println("State: Starting SDHC");
       device.deviceState = startSDHC();  //Call this until it changes the state
       break;
     case DCU_STARTING_WIRELESS:
       //setLEDs(redLED);
-      if(DEBUGGING_BOOT) Serial.println("State: Starting Wireless");
+      if(DBG.BOOT) Serial.println("State: Starting Wireless");
       if(device.printStartupState) printOnce("DCU State: Starting ESP32");
       device.deviceState = startWireless();
       updateComms();
       //Start the ESP32
       break;
     case DCU_STARTING_OUTPUTS:
-      if(DEBUGGING_BOOT) Serial.println("State: Starting Outputs");
+      if(DBG.BOOT) Serial.println("State: Starting Outputs");
       //if(device.printStartupState) printOnce("DCU State: Starting Output Module");
       enable5VPower();
       //setLEDs(redLED);
@@ -119,32 +119,32 @@ void loop() {
       updateComms();
       break;
     case DCU_STARTING_INPUTS:
-      if(DEBUGGING_BOOT) Serial.println("State: Starting Inputs");
+      if(DBG.BOOT) Serial.println("State: Starting Inputs");
       //if(device.printStartupState) printOnce("DCU State: Starting Input Module");
       //setLEDs(redLED);
       device.deviceState = startInputs();
       updateComms();
       break;
     case DCU_START_READING_SETTINGS:
-      if(DEBUGGING_BOOT) Serial.println("State: Starting to read settings");
+      if(DBG.BOOT) Serial.println("State: Starting to read settings");
       //if(device.printStartupState) printOnce("DCU State: Reading Settings File");
       //setLEDs(greenLED);
       device.deviceState = startReadingSettings();  //Start reading the settings file
       break;
     case DCU_READING_SETTINGS:
-      if(DEBUGGING_BOOT) Serial.println("State: Reading settings");
+      if(DBG.BOOT) Serial.println("State: Reading settings");
       //setLEDs(greenLED);
       device.deviceState = readSettings();  //Call this until it changes the state
       break;
     case DCU_APPLYING_DEFAULTS:
-      if(DEBUGGING_BOOT) Serial.println("State: Applying defaults");
+      if(DBG.BOOT) Serial.println("State: Applying defaults");
       //setLEDs(redLED);
       //if(device.printStartupState) printOnce("DCU State: Apply default settings");
       device.deviceState = applyDefaults();
       updateComms();
       break;
     case DCU_STARTING_IMU:
-      if(DEBUGGING_BOOT) Serial.println("State: Starting IMU");
+      if(DBG.BOOT) Serial.println("State: Starting IMU");
       //setLEDs(redLED);
       //if(device.printStartupState) printOnce("DCU State: Starting IMU");
       device.deviceState = startIMU();
@@ -152,7 +152,7 @@ void loop() {
       //Start the MPU9250
       break;
     case DCU_CONNECTING_WIFI:
-      if(DEBUGGING_BOOT) Serial.println("State: Connecting to WiFi");
+      if(DBG.BOOT) Serial.println("State: Connecting to WiFi");
       //setLEDs(redLED);
       //if(device.printStartupState) printOnce("DCU State: Connecting to WiFI");
       device.deviceState = connectWiFi();
@@ -160,7 +160,7 @@ void loop() {
       //Attempt a connection - send the wifi ssid and password to the ESP32
       break;
     case DCU_WAITING_FOR_WIFI:
-      if(DEBUGGING_BOOT) Serial.println("State: Waiting for WiFi");
+      if(DBG.BOOT) Serial.println("State: Waiting for WiFi");
       //setLEDs(redLED);
       //if(device.printStartupState) printOnce("DCU State: Waiting For WiFI");
       device.deviceState = waitForWiFi();
@@ -168,7 +168,7 @@ void loop() {
       //Wait for ESP32 to connect
       break;
     case DCU_RESTARTING_SDHC:
-      if(DEBUGGING_BOOT) Serial.println("State: Restarting SDHC");
+      if(DBG.BOOT) Serial.println("State: Restarting SDHC");
       //setLEDs(redLED);
       //if(device.printStartupState) printOnce("DCU State: Restarting SDHC");
       device.deviceState = restartSDHC();
@@ -176,7 +176,7 @@ void loop() {
       //Wait for ESP32 to connect
       break;
     case DCU_FINISHED_STARTUP:
-      if(DEBUGGING_BOOT) Serial.println("State: Finished Startup");
+      if(DBG.BOOT) Serial.println("State: Finished Startup");
       //randomiseLED(randomLED);
       //setLEDs(randomLED);
       //beepFor(500); //CRASHES USB!!!!
@@ -190,17 +190,17 @@ void loop() {
       break;
     case DCU_RUNNING_STANDBY:
       //setLEDs(blueLED);
-      if(DEBUGGING_BOOT) printOnce("DCU State: Running Standby");
+      if(DBG.BOOT) printOnce("DCU State: Running Standby");
       device.deviceState = updateIdle();
       break;
     case DCU_RUNNING_EXPERIMENT:
       //setLEDs(whiteLED);
-      if(DEBUGGING_BOOT) printOnce("DCU State: Running Experiment");
+      if(DBG.BOOT) printOnce("DCU State: Running Experiment");
       device.deviceState = updateExperiment();
       break;
     default:
     
-      if(DEBUGGING_BOOT) Serial.println("State: ERRo DEFAULT STATE HANDLER REACHED");
+      if(DBG.BOOT) Serial.println("State: ERRo DEFAULT STATE HANDLER REACHED");
       //setLEDs(redLED);
       device.deviceState = updateIdle();
       break;

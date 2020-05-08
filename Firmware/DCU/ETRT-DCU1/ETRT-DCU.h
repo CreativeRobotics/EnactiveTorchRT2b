@@ -1,4 +1,4 @@
-#include "src\Utilities\Bounce2\Bounce2.h"
+#include "src/Utilities/Bounce2/Bounce2.h"
 #include <SamRTC.h> //In CR core lib
 #include <SPI.h>  //In CR core lib
 #include "src/Drivers/Adafruit_NeoPixel.h"
@@ -6,7 +6,7 @@
 
 #include "src/Commander/Commander.h"
 #include "src/Commander/prefabs/SDCards/PrefabFileNavigator.h"
-
+#include "src/Utilities/FlashStorage/FlashStorage.h"
 //Real Time Clock
 //#include <RV8523.h>
 //RV8523 rtc;
@@ -23,12 +23,22 @@ inv_error_t initResult;
 
 //Enactive Torch RT V2.0
 
+
 //Serial port for printing error messages
 #define ERRORS Serial
 #define DEBUG Serial
-bool DEBUGGING = false;
-bool DEBUGGING_BOOT = false;
-bool DEBUGGING_SD  = false;
+typedef struct debug_t{
+  bool STD = false;
+  bool BOOT = false;
+  bool SDC  = false;
+  bool WAIT_USB  = false;
+}debug_t;
+
+debug_t DBG;
+//DBG.BOOT
+//DBG.SDC
+//DBG.STD
+
 //#define WAIT_FOR_USB
 //#define WAIT_FOR_BUTTON
 #define USBS Serial
@@ -82,7 +92,7 @@ const uint8_t yellowLED[3] = {200,200,0};
 //Data Capture Unit Settings
 typedef struct dcuSettings_t{
 	int data1;
-  const String DCU_FW_VERSION = "2.0.0";
+  const String DCU_FW_VERSION = "1.2.0";
   long gyroBias[3];
   long accelBias[3];
   long magBias[3];
@@ -277,6 +287,18 @@ dcuData_t device;
 Commander cmdDCU;
 Commander cmdWireless;
 Commander cmdFileReader;
+
+
+
+FlashStorage(debugModeStore, debug_t);
+
+void saveDebugMode(){
+  debugModeStore.write(DBG);
+}
+
+void loadDebugMode(){
+  DBG = debugModeStore.read();
+}
 
 void enablePeripheralPower(){
   device.peripheralPowerOn = true;

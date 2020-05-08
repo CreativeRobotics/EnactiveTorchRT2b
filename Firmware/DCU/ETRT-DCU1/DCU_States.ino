@@ -45,13 +45,17 @@ dcuState_t updateExperiment(){
 
 dcuState_t runStartup(){
   //Call this until it changes the state
+  loadDebugMode(); //load debug settings from flash memory
   initDCU();
   initLEDs();
   delay(500);
   initClock();
-  #ifdef WAIT_FOR_USB
+  //#ifdef WAIT_FOR_USB
+  //  while(!USBS){;}
+  //#endif
+  if(DBG.WAIT_USB){
     while(!USBS){;}
-  #endif
+  }
   //Serial.println("attaching ...");
   //attachInterrupt(digitalPinToInterrupt(PIN_IMU_INT), imu_isr, FALLING);
   //attachInterrupt(digitalPinToInterrupt(SDCD), cardDetect_isr, CHANGE);
@@ -69,7 +73,7 @@ dcuState_t runStartup(){
     device.userButtonChanged = false;
   #endif
   delay(1500);
-  if(DEBUGGING) USBS.println("DCU State: USB ONLNE --------------------------");
+  if(DBG.STD) USBS.println("DCU State: USB ONLNE --------------------------");
   return DCU_STARTING_SDHC;
 }
 
@@ -142,7 +146,7 @@ dcuState_t startReadingSettings(){
 //===============================================================================================
 dcuState_t readSettings(){
   //Call this until it changes the state
-  //if(DEBUGGING) printOnce("DCU State: Reading settings from SD Card");
+  //if(DBG.STD) printOnce("DCU State: Reading settings from SD Card");
   if(readDeviceSettings()){
     while(millis() < settings.waitForReplyTimer) updateComms(); //wait here and handle any comm events
     settings.waitForReplyTimer = 0; //this is set in the command handlers for specific commands that require a wait

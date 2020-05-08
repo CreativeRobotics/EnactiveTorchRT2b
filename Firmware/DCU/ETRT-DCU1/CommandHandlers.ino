@@ -50,12 +50,12 @@ const commandList_t DCUCommands[] = {
   {"ESPTelnet:",        espSendTelnetData,  "-Marks data as coming from a Telnet client"},  //
   {"ESP:",              espSendCommand,     "Route the command to the ESP32 WiFi Module"}, //route a command to the ESP module  
   {"testSD",            testSD,             "Test the SD by opening, writing and closing a file"},
-  {"button action",    buttonActionSet,    "Enable or disable various button actions"},
-  {"print",               printSomethingHandler,    "Print a piece of data"},
-  {"-DEBUG:",            debugMessage,       "-Debug message"},
+  {"button action",     buttonActionSet,    "Enable or disable various button actions"},
+  {"print",             printSomethingHandler,    "Print a piece of data"},
+  {"DEBUG:",            debugMessage,       "-Debug message"},
   {"ack",               ack,                "-Acknowledge"},
   {"nack",              nack,               "-NOT Acknowledge"},
-  {"debug",      setDebugPrinting,        "set debugging print options. Sub options are sd or boot. Use 'on', 'off' or none to toggle. EG: 'debug on' or 'debug sd on'"},
+  {"debug",             setDebugPrinting,   "set debug options. Sub options are sd, usb or boot. Use 'on', 'off' or none to toggle. EG: 'debug on' or 'debug sd on'. 'debug usb on' causes device to wait for USB serial port before booting"},
   {"?",                 query,              "Query"},
   {"ERR:",              commError,          "-comm Error"}
 };
@@ -275,7 +275,7 @@ bool setDataPrecision( Commander &Cmdr){
   if(result > 0 && result < 8)  settings.dataPrecision = result;
 }
 bool setSSID(Commander &Cmdr){
-  if(DEBUGGING) debugPrintln("Setting SSID");
+  if(DBG.STD) debugPrintln("Setting SSID");
   //uint8_t startOf = 0;
   //uint8_t endOf = 0;
   //set command - find the second space char
@@ -285,7 +285,7 @@ bool setSSID(Commander &Cmdr){
   //SSID is after the space
   settings.ssid = Cmdr.getPayloadString();
   settings.wifiSSIDOK = true;
-  if(DEBUGGING){
+  if(DBG.STD){
     debugStartLine();
     DEBUG.print("Set SSID to: ");
     DEBUG.println(settings.ssid);
@@ -294,7 +294,7 @@ bool setSSID(Commander &Cmdr){
 }
 
 bool setPassword(Commander &Cmdr){
-  if(DEBUGGING) debugPrintln("Setting Password");
+  if(DBG.STD) debugPrintln("Setting Password");
   //uint8_t startOf = 0;
   //uint8_t endOf = 0;
   //set command - find the second space char
@@ -304,7 +304,7 @@ bool setPassword(Commander &Cmdr){
   //SSID is after the space
   settings.pswd = Cmdr.getPayloadString();
   settings.wifiPassOK = true;
-  if(DEBUGGING){
+  if(DBG.STD){
     debugStartLine();
     DEBUG.print("Set Password to: ");
     DEBUG.println(settings.pswd);
@@ -314,13 +314,13 @@ bool setPassword(Commander &Cmdr){
 
 bool enableServer(Commander &Cmdr){
   WIRELESS.println("enable server");
-  if(DEBUGGING) DEBUG.print("DEBUG: Sent Server start command");
+  if(DBG.STD) DEBUG.print("DEBUG: Sent Server start command");
   settings.waitForReplyTimer = 1000;
   return 0;
 }
 bool disableServer(Commander &Cmdr){
   WIRELESS.println("disable server");
-  if(DEBUGGING) DEBUG.print("DEBUG: Sent Server stop command");
+  if(DBG.STD) DEBUG.print("DEBUG: Sent Server stop command");
   
   settings.waitForReplyTimer = 1000;
   return 0;
@@ -328,13 +328,13 @@ bool disableServer(Commander &Cmdr){
 
 bool enableTelnet(Commander &Cmdr){
   WIRELESS.println("enable telnet");
-  if(DEBUGGING) DEBUG.print("DEBUG: Sent telnet start command");
+  if(DBG.STD) DEBUG.print("DEBUG: Sent telnet start command");
   settings.waitForReplyTimer = 1000;
   return 0;
 }
 bool disableTelnet(Commander &Cmdr){
   WIRELESS.println("disable telnet");
-  if(DEBUGGING) DEBUG.print("DEBUG: Sent telnet stop command");
+  if(DBG.STD) DEBUG.print("DEBUG: Sent telnet stop command");
   settings.waitForReplyTimer = 1000;
   return 0;
 }
@@ -342,26 +342,26 @@ bool disableTelnet(Commander &Cmdr){
 
 bool enableBluetooth(Commander &Cmdr){
   WIRELESS.println("enable bluetooth");
-  if(DEBUGGING) DEBUG.print("DEBUG: Sent bluetooth start command");
+  if(DBG.STD) DEBUG.print("DEBUG: Sent bluetooth start command");
   settings.waitForReplyTimer = 1000;
   return 0;
 }
 bool disableBluetooth(Commander &Cmdr){
   WIRELESS.println("disable bluetooth");
-  if(DEBUGGING) DEBUG.print("DEBUG: Sent bluetooth stop command");
+  if(DBG.STD) DEBUG.print("DEBUG: Sent bluetooth stop command");
   settings.waitForReplyTimer = 1000;
   return 0;
 }
 
 bool enableUDP(Commander &Cmdr){
   WIRELESS.println("enable UDP");
-  if(DEBUGGING) DEBUG.print("DEBUG: Sent UDP start command");
+  if(DBG.STD) DEBUG.print("DEBUG: Sent UDP start command");
   settings.waitForReplyTimer = 1000;
   return 0;
 }
 bool disableUDP(Commander &Cmdr){
   WIRELESS.println("disable UDP");
-  if(DEBUGGING) DEBUG.print("DEBUG: Sent UDP stop command");
+  if(DBG.STD) DEBUG.print("DEBUG: Sent UDP stop command");
   settings.waitForReplyTimer = 1000;
   return 0;
 }
@@ -507,30 +507,42 @@ bool setDebugPrinting(Commander &Cmdr){
   //ERRORS.println("Serial handler 2");
   Cmdr.println("DCU Status: Setting debug printing");
   if(Cmdr.bufferString.indexOf("boot") > -1){
-    if(Cmdr.containsOn()) DEBUGGING_BOOT = true;
-    else if(Cmdr.containsOff()) DEBUGGING_BOOT = false;
-    else DEBUGGING_BOOT = !DEBUGGING_BOOT;
-    DEBUGGING_BOOT ? Cmdr.println("Debug boot ON") : Cmdr.println("Debug boot OFF");
+    if(Cmdr.containsOn()) DBG.BOOT = true;
+    else if(Cmdr.containsOff()) DBG.BOOT = false;
+    else DBG.BOOT = !DBG.BOOT;
+    DBG.BOOT ? Cmdr.println("Debug boot ON") : Cmdr.println("Debug boot OFF");
     return 0;
   }
   if(Cmdr.bufferString.indexOf("sd") > -1){
-    if(Cmdr.containsOn()) DEBUGGING_SD = true;
-    else if(Cmdr.containsOff()) DEBUGGING_SD = false;
-    else DEBUGGING_SD = !DEBUGGING_SD;
-    DEBUGGING_SD ? Cmdr.println("Debug sd ON") : Cmdr.println("Debug sd OFF");
+    if(Cmdr.containsOn()) DBG.SDC = true;
+    else if(Cmdr.containsOff()) DBG.SDC = false;
+    else DBG.SDC = !DBG.SDC;
+    DBG.SDC ? Cmdr.println("Debug sd ON") : Cmdr.println("Debug sd OFF");
     return 0;
   }
-  if(Cmdr.containsOn()) DEBUGGING = true;
-  else if(Cmdr.containsOff()) DEBUGGING = false;
-  else DEBUGGING = !DEBUGGING;
-  DEBUGGING ? Cmdr.println("Debug ON") : Cmdr.println("Debug OFF");
+  if(Cmdr.bufferString.indexOf("usb") > -1){
+    if(Cmdr.containsOn()) DBG.WAIT_USB = true;
+    else if(Cmdr.containsOff()) DBG.WAIT_USB = false;
+    else DBG.WAIT_USB = !DBG.WAIT_USB;
+    DBG.WAIT_USB ? Cmdr.println("Debug USB Pause ON") : Cmdr.println("Debug USB Pause OFF");
+    return 0;
+  }
+  if(Cmdr.bufferString.indexOf("save") > -1){
+    saveDebugMode();
+    Cmdr.println("Debug state saved to flash");
+    return 0;
+  }
+  if(Cmdr.containsOn()) DBG.STD = true;
+  else if(Cmdr.containsOff()) DBG.STD = false;
+  else DBG.STD = !DBG.STD;
+  DBG.STD ? Cmdr.println("Standard debug ON") : Cmdr.println("Standard debug OFF");
   return 0;
 }
 
 
 bool espStatusMessage(Commander &Cmdr){
   //look through the string to see what if any status message came in
-  /*if(DEBUGGING){
+  /*if(DBG.STD){
     DEBUG.print("DEBUG: ESP Status Message is: ");
     DEBUG.println(Cmdr.bufferString);
   }*/
@@ -587,7 +599,7 @@ bool espSendCommand(Commander &Cmdr){
   //String espCmd = Cmdr.bufferString.substring(startIndex);
   WIRELESS.print(Cmdr.getPayload());
   //WIRELESS.print(Cmdr.bufferString.substring(startIndex+1)); //the substring will include the newline
-  if(DEBUGGING){
+  if(DBG.STD){
     debugStartLine();
     DEBUG.print("Sent ESP: ");
     DEBUG.println(Cmdr.getPayload());
@@ -604,22 +616,3 @@ bool commentCommand(Commander &Cmdr){
   Cmdr.println("Command Comment");
   return 0;
 }
-/*
-bool printCommandList(Commander &Cmdr){
-  //Prints all the commands
-  uint8_t n = 0;
-  //int length1 = 0;
-  Cmdr.println("#COMMAND LIST");
-  for(n = 0; n < numOfCmds; n++){
-    Cmdr.print(commands[n].commandString);
-    //length1 = commands[n].commandString.length();
-    for(int i = 0; i < (32-commands[n].commandString.length()); i++){
-      //add whitespace
-      Cmdr.print(" ");
-    }
-    Cmdr.print("|");
-    Cmdr.println(commands[n].manualString);
-  }
-  Cmdr.println("#END OF COMMANDS");
-  return 0;
-}*/

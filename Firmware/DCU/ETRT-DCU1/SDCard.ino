@@ -8,39 +8,39 @@
 */
 void setupSDHC(){
   //Set up the command buffer
-  //if(DEBUGGING) DEBUG.println("Resetting Buffer");
-  //if(DEBUGGING) delay(100);
+  //if(DBG.STD) DEBUG.println("Resetting Buffer");
+  //if(DBG.STD) delay(100);
   
   //resetBuffer(bufferSD);
   cmdFileReader.begin(&settings.settingsFile, &USBS,  DCUCommands, numOfDCUCmds);
   //Set to read from a file instead of serial
-  //if(DEBUGGING) DEBUG.println("Set port mode");
+  //if(DBG.STD) DEBUG.println("Set port mode");
   //setPortMode(bufferSD, FILEREADER_COMMAND);
   //Set the serial port so we can still print replies
-  //if(DEBUGGING) DEBUG.println("Set Primary Port");
+  //if(DBG.STD) DEBUG.println("Set Primary Port");
   //bufferSD.port = &USBS;
-  //if(DEBUGGING) DEBUG.println("Reserving buffer");
+  //if(DBG.STD) DEBUG.println("Reserving buffer");
   //bufferSD.bufferString.reserve(SBUFFER);
-  //if(DEBUGGING) DEBUG.println("Reserving Pending Buffer");
+  //if(DBG.STD) DEBUG.println("Reserving Pending Buffer");
   //bufferSD.pendingCommandString.reserve(SBUFFER);
-  //if(DEBUGGING) DEBUG.println("Checking Power");
+  //if(DBG.STD) DEBUG.println("Checking Power");
   if(!device.peripheralPowerOn){
     printErln("SDCard not powered up");
     return;
   }
-  //if(DEBUGGING) DEBUG.println("Setting Pins");
+  //if(DBG.STD) DEBUG.println("Setting Pins");
   pinMode(SDCD, INPUT_PULLUP);
-  //if(DEBUGGING) DEBUG.println("Setting SDWP");
+  //if(DBG.STD) DEBUG.println("Setting SDWP");
   //pinMode(SDWP, INPUT_PULLUP);
   //pinMode(SDWP, OUTPUT);
-  //if(DEBUGGING) DEBUG.println("Setting SS");
+  //if(DBG.STD) DEBUG.println("Setting SS");
   pinMode(SS, OUTPUT);
-  //if(DEBUGGING) DEBUG.println("Setting SDWP state");
+  //if(DBG.STD) DEBUG.println("Setting SDWP state");
   //digitalWrite(SDWP, 0); //SDWP connects to SDCD when a card is inserted.
 
-  //if(DEBUGGING) DEBUG.println("Attaching int");
+  //if(DBG.STD) DEBUG.println("Attaching int");
   //attachInterrupt(digitalPinToInterrupt(SDCD), cardDetect_isr, CHANGE);
-  if(DEBUGGING) DEBUG.println("Checking for card");
+  if(DBG.STD) DEBUG.println("Checking for card");
   //delay(100);
   startSD();
   
@@ -48,11 +48,11 @@ void setupSDHC(){
 
 void startSD(){
   device.cardPresent = cardInserted();
-  if(DEBUGGING_BOOT && !device.cardPresent) DEBUG.println("Card not detected");
-  else if(DEBUGGING_BOOT) DEBUG.println("Card detected");
-  //if(DEBUGGING && device.cardPresent) DEBUG.println("Card detected");
-  //if(DEBUGGING && !device.cardPresent) DEBUG.println("Card not detected");
-  //if(DEBUGGING) DEBUG.println("Attempting to initialise card");
+  if(DBG.BOOT && !device.cardPresent) DEBUG.println("Card not detected");
+  else if(DBG.BOOT) DEBUG.println("Card detected");
+  //if(DBG.STD && device.cardPresent) DEBUG.println("Card detected");
+  //if(DBG.STD && !device.cardPresent) DEBUG.println("Card not detected");
+  //if(DBG.STD) DEBUG.println("Attempting to initialise card");
   if(device.cardPresent) tryInitSDCard();
   else printErln("SDCard not present");
 }
@@ -120,7 +120,7 @@ void endSD(){
   device.cardInitError = false;
   device.dataFileOpen = false;
   device.cardSettingsFile = false;
-  if(DEBUGGING)DEBUG.println("Card Removed");
+  if(DBG.STD)DEBUG.println("Card Removed");
   //SD.end();
 }
 

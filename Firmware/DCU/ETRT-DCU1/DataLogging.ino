@@ -9,7 +9,7 @@ void stopLog(){
   device.logActive = false;
   if(device.dataFileOpen){
     closeLogFile();
-    if(DEBUGGING) DEBUG.println("DEBUG: Stopped Log");
+    if(DBG.STD) DEBUG.println("DEBUG: Stopped Log");
   }
 }
 void startSDLog(){
@@ -17,15 +17,15 @@ void startSDLog(){
   //if(device.dataFileOpen) return; //do nothing if the log has already been started by something else
   if(openLogFile()){
     //device.logActive = true;
-    if(DEBUGGING) DEBUG.println("DEBUG: Started SD Log");
+    if(DBG.STD) DEBUG.println("DEBUG: Started SD Log");
     writeSDLogHeader();
-    if(DEBUGGING) DEBUG.println("DEBUG: Header Created");
-  }else if(DEBUGGING) DEBUG.println("DEBUG: Failed to start SD log");
+    if(DBG.STD) DEBUG.println("DEBUG: Header Created");
+  }else if(DBG.STD) DEBUG.println("DEBUG: Failed to start SD log");
 }
 
 bool openLogFile(){
   if(sdUnavailable()) return false;
-  if(DEBUGGING) {
+  if(DBG.STD) {
     DEBUG.println("Opening Log File . . .");
   }
   //Open a new datalog file witha time stamped filename
@@ -42,7 +42,7 @@ bool openLogFile(){
     return false;
   }
   device.dataFileOpen = true;
-  if(DEBUGGING) {
+  if(DBG.STD) {
     DEBUG.print("Starting log file: ");
     DEBUG.println(filename);
   }
@@ -50,7 +50,7 @@ bool openLogFile(){
 }
 
 void closeLogFile(){
-  if(DEBUGGING) {
+  if(DBG.STD) {
     DEBUG.println("Closing Log File . . .");
   }
   //if(sdUnavailable()) return false;
@@ -58,24 +58,24 @@ void closeLogFile(){
   device.dataLogFile.close();// = SD.close(filename , FILE_WRITE);
   device.dataFileOpen = false;
   device.dataLogFilename = "";
-  if(DEBUGGING) {
+  if(DBG.STD) {
     DEBUG.print("Stopped log file: ");
   }
 }
 
 void writeToLog(String dataLine){
   if(!device.dataFileOpen) {
-    if(DEBUGGING)DEBUG.println("DEBUG: Err, file Not Open");
+    if(DBG.STD)DEBUG.println("DEBUG: Err, file Not Open");
     return;
   }if(dataLine.length() == 0) {
-    if(DEBUGGING)DEBUG.println("DEBUG: Err, No data to write");
+    if(DBG.STD)DEBUG.println("DEBUG: Err, No data to write");
     return;
   }
   char data[dataLine.length()+1];
   dataLine.toCharArray(data, dataLine.length()+1);
   device.dataLogFile.println(data);
   //device.dataLogFile.flush();
-  if(DEBUGGING){
+  if(DBG.STD){
     DEBUG.print("Written to SD:");
     DEBUG.println(data);
     DEBUG.println("Bytes:");
@@ -222,7 +222,7 @@ void updateDataLogs(){
   switchBuffers();
 }
 void updateSDLog(){
-  if(DEBUGGING) DEBUG.println("Writing data line to SD");
+  if(DBG.STD) DEBUG.println("Writing data line to SD");
   writeToLog(logBuffer.buffer[logBuffer.i]);
 }
 void sendUDPLog(){

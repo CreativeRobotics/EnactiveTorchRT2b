@@ -23,7 +23,19 @@ void updateUser(){
 #define AUDIO0_AMPLITUDE  3
 #define AUDIO1_FREQ       4
 #define AUDIO1_AMPLITUDE  5
-
+/* UpdateInputs function
+  if(device.sensorType == 1){
+    device.inputs[0] = Sensor.getRange();
+    device.inputs[1] = Sensor.getDelta();
+    device.inputs[2] = Sensor.getTOFRange();
+    device.inputs[3] = Sensor.getTOFDelta();
+    device.inputs[4] = Sensor.getAuxRange();
+    device.inputs[5] = Sensor.getAuxDelta();
+  }else if(device.sensorType == 0){
+    device.inputs[2] = getSonarRange();
+  }
+*/
+  
 void mapSensors(){
   //the main function for mapping sensor inputs to haptic outputs
   /*
@@ -35,11 +47,11 @@ void mapSensors(){
   float range = 150.0;
   if(device.sensorType == 0){
     //SONAR
-    range = device.inputs[SONAR_RANGE];//TOF range
+    range = device.inputs[SONAR_RANGE];//SONAR range
   }
   else{
     //map TOF lidar range to Vib motor and transducer
-    range = device.inputs[LIDAR_RANGE];//TOF range
+    range = device.inputs[LIDAR_RANGE];//TOF LIDAR range
   }
   if(range > 150.0) range = 150.0;
   float vibIntensity = (150-range) * 0.0067;
@@ -87,7 +99,7 @@ void buttonToggle(){
   device.buttonActionToggleState = !device.buttonActionToggleState;
   if(!device.buttonActionToggleState) buttonOffAction(); //turn off
   else buttonOnAction(); //turn on
-  if(DEBUGGING) {
+  if(DBG.STD) {
     DEBUG.print("Button Toggle ");
     device.buttonActionToggleState ? DEBUG.println("TON") : DEBUG.println("TOFF");
   }
@@ -99,11 +111,11 @@ void buttonOnAction(){
   if(device.buttonEnableHaptics){
     //testHapticsStart();
     enableAudio();
-    if(DEBUGGING) DEBUG.println("DEBUG: Button: Haptics On");
+    if(DBG.STD) DEBUG.println("DEBUG: Button: Haptics On");
   }
   if(device.buttonStartLog){
     startLog();
-    if(DEBUGGING) DEBUG.println("DEBUG: Button: Log On");
+    if(DBG.STD) DEBUG.println("DEBUG: Button: Log On");
   }
 }
 //===============================================================================================
@@ -114,10 +126,10 @@ void buttonOffAction(){
     //testHapticsStop();
     //beepOff();
     disableAudio();
-    if(DEBUGGING) DEBUG.println("DEBUG: Button: Haptics Off");
+    if(DBG.STD) DEBUG.println("DEBUG: Button: Haptics Off");
   }
   if(device.buttonStartLog){
     stopLog();
-    if(DEBUGGING) DEBUG.println("DEBUG: Button: Log Off");
+    if(DBG.STD) DEBUG.println("DEBUG: Button: Log Off");
   }
 }

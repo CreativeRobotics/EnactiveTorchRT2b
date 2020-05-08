@@ -26,12 +26,12 @@ bool initIMU(void){
   //attachInterrupt(digitalPinToInterrupt(PIN_IMU_INT), imu_isr, FALLING);
   //attachInterrupt(PIN_IMU_INT, imu_isr, FALLING);
   if(imu.begin() != INV_SUCCESS) {
-    if(DEBUGGING) DEBUG.println("INIT Fail Unable to communicate with MPU-9250");
+    if(DBG.STD) DEBUG.println("INIT Fail Unable to communicate with MPU-9250");
     //device.IMU_Enabled = false;
     device.IMU_SetupError = 1; //failed to communicate
     return false;
   }
-  if(DEBUGGING) DEBUG.println("Configuring MPU-9250");
+  if(DBG.STD) DEBUG.println("Configuring MPU-9250");
   
   // Set up MPU-9250 interrupt:
   imu.enableInterrupt(); // Enable interrupt output
@@ -52,7 +52,7 @@ bool initIMU(void){
   imu.setCompassSampleRate(IMU_COMPASS_SAMPLE_RATE); 
 
   if(device.IMUMode == 0){
-    if(DEBUGGING) DEBUG.println("Applying MPU-9250 Calibration");
+    if(DBG.STD) DEBUG.println("Applying MPU-9250 Calibration");
     applyIMUCalibration();
     // Configure digital motion processor. Use the FIFO to get
     // data from the DMP.
@@ -66,19 +66,19 @@ bool initIMU(void){
     dmpFeatureMask |= DMP_FEATURE_SEND_RAW_ACCEL;
     dmpFeatureMask |= DMP_FEATURE_6X_LP_QUAT;
 
-    if(DEBUGGING) DEBUG.println("Starting DMP");
+    if(DBG.STD) DEBUG.println("Starting DMP");
     // Initialize the DMP, and set the FIFO's update rate:
     imu.dmpBegin(dmpFeatureMask, fifoRate);
-    if(DEBUGGING)DEBUG.println("IMU Initialised");
+    if(DBG.STD)DEBUG.println("IMU Initialised");
   }else if(device.IMUMode == 1){
     unsigned short dmpFeatureMask = 0;
     dmpFeatureMask |= DMP_FEATURE_SEND_RAW_GYRO;
     dmpFeatureMask |= DMP_FEATURE_SEND_RAW_ACCEL;
     dmpFeatureMask |= DMP_FEATURE_6X_LP_QUAT;
-    if(DEBUGGING) DEBUG.println("Starting DMP for calibration");
+    if(DBG.STD) DEBUG.println("Starting DMP for calibration");
     // Initialize the DMP, and set the FIFO's update rate:
     imu.dmpBegin(dmpFeatureMask, fifoRate);
-    if(DEBUGGING)DEBUG.println("IMU Initialised");
+    if(DBG.STD)DEBUG.println("IMU Initialised");
   }
   return true; // Return success
 }
@@ -94,10 +94,10 @@ void applyIMUCalibration(){
   //mpu_set_accel_bias_6500_reg(settings.accelBias);
 
   if( mpu_set_gyro_bias_reg(settings.gyroBias) != INV_SUCCESS){
-    if(DEBUGGING)DEBUG.println("Failed to set Gyro Bias");;
+    if(DBG.STD)DEBUG.println("Failed to set Gyro Bias");;
   }
   if( mpu_set_accel_bias_6500_reg(settings.accelBias) != INV_SUCCESS){
-    if(DEBUGGING)DEBUG.println("Failed to set Accel Bias");;
+    if(DBG.STD)DEBUG.println("Failed to set Accel Bias");;
   }
 }
 
@@ -148,10 +148,10 @@ void updateIMU(){
   if ( imu.fifoAvailable() || device.IMU_Interrupted ){
     device.IMU_Interrupted = false;
     if ( imu.dmpUpdateFifo() == INV_SUCCESS) processIMUData();
-    else if(DEBUGGING) DEBUG.println("DEBUG: Failed to read IMU");
+    else if(DBG.STD) DEBUG.println("DEBUG: Failed to read IMU");
     
     if ( imu.updateCompass() == INV_SUCCESS ) processMagData();
-    else if(DEBUGGING) DEBUG.println("DEBUG: Failed to read compass");
+    else if(DBG.STD) DEBUG.println("DEBUG: Failed to read compass");
   }
 }
 

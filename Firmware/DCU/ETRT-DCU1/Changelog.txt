@@ -1,0 +1,23 @@
+ETRT 2b
+Changelog
+V1.2.0
+Updated LIDAR driver to cap values at 1200.0cm. The LIDAR checksum byte appears as zero all the time, presumably a firmware error, but it prevents any checks on data errors that might cause random high values.
+Improved debug support. Debugging messages can be enabled for general debbugging, SD card and Startup. These states can be saved to flash memory sith the 'debug save' command so they will be loaded before the startup procedure begins. The device can also be set to pause and wait until a USB serial port is opened before starting - this makes it easier to catch all the startup messages when the device is switched on.
+	- 'debug on' switches general debugging on.
+	- 'debug off' switches general debugging off.
+	- 'debug' toggles debugging state.
+	- 'debug sd on' switches SD card debugging on.
+	- 'debug sd off' switches SD card debugging off.
+	- 'debug sd' toggles SD card debugging state.
+	- 'debug boot on' switches startup debugging on.
+	- 'debug boot off' switches startup debugging off.
+	- 'debug sd' toggles startup debugging state.
+	- 'debug usb on' enables device pausing until a USB serial connection is opened.
+	- 'debug usb off' disables device pausing until a USB serial connection is opened.
+	- 'debug usb on' toggles the state of device pausing until a USB serial connection is opened.
+	- 'debug save' saves debugging settings to flash memory for use the next time the device starts.
+Removed a computation step when converting sonar pulse to range in cm
+Fixed data logging extra item.
+Fixed SONAR not using the correct scale for mapping values to haptics.
+
+##Previous version numbers were not being updated sensibly in code. Version numbers now start at 1.2.0 for revision b of the hardware.
