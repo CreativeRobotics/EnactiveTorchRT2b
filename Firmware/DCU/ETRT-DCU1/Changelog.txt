@@ -14,7 +14,7 @@ Improved debug support. Debugging messages can be enabled for general debbugging
 	- 'debug sd' toggles startup debugging state.
 	- 'debug usb on' enables device pausing until a USB serial connection is opened.
 	- 'debug usb off' disables device pausing until a USB serial connection is opened.
-	- 'debug usb on' toggles the state of device pausing until a USB serial connection is opened.
+	- 'debug usb' toggles the state of device pausing until a USB serial connection is opened.
 	- 'debug save' saves debugging settings to flash memory for use the next time the device starts.
 Removed a computation step when converting sonar pulse to range in cm
 Fixed data logging extra item.
