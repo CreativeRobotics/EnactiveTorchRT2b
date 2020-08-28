@@ -1,0 +1,1 @@
+Firmware revision 1 can only be used with the ESP32 version 3.0. Please ensure that the ENactive Torch has ESP32 firmware version 3.1 or higher if you want to use DCU formware revision 2.

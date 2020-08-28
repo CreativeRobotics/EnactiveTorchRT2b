@@ -1,0 +1,28 @@
+#ETRT SETTINGS
+#DCU SETTINGS
+#Lines starting with HASH (#) are ignored
+#Line starting with DEBUG will print debugging messages on the serial port
+DEBUG if the settings file is empty thats fine
+#Data log settings - what to log
+setlog quaternion false
+setlog YPR true
+setlog gyro false
+setlog accellerometer false
+setlog magnetometer false
+setlog heading false
+setlog inputs true
+setlog outputs true
+#Data log settings - where to log
+setlog USB true
+setlog UDP false
+setlog telnet false
+setlog SD false
+setlog bluetooth false
+#Set biases for IMU
+#set gyro bias 0,0,0
+#set accel bias 0,0,0
+#set mag bias 0,0,0
+#use for configuring wifi
+set SSID BTHub6-2G8M
+set Pass GRL4MN6Cw3iV
+#enable telnet
